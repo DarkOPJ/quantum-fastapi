@@ -1,4 +1,4 @@
-# AGENTS.md — opencode-practice
+# AGENTS.md
 
 ## Architecture Decisions
 

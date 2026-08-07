@@ -16,13 +16,24 @@ This project has four custom skills. **Load and defer to them before writing Fas
 - `fastapi-security-standards` — authentication (JWT), authorization (RBAC), security hardening (CORS, rate limiting, headers), API contract design (status codes, versioning, error response shape), testing strategy, environment/configuration management.
 - `fastapi-input-validation-vulnerability-prevention` — Pydantic v2 strict validation, injection/SSRF/mass-assignment prevention, file upload security, output filtering.
 - `fastapi-production-engineering-operations` — CI/CD pipelines, containerization (Docker multi-stage builds), Kubernetes/cloud deployment, reverse proxy/ASGI server setup (Gunicorn/Uvicorn/Nginx), observability, performance/load testing.
-- `documentation-standards` — README/CHANGELOG/ADR structure, API/component/code-level documentation, Markdown formatting conventions. Applies across frontend, backend, and mobile work.
+- `documentation-standards` — README/CHANGELOG/ADR structure, API/code-level documentation, Markdown formatting conventions. Written to be stack-agnostic; this project only uses its backend-relevant guidance (no frontend/mobile code exists here).
 
 Do not duplicate skill contents here — consult the skill file for its domain.
 
+## Agents (`.opencode/agents/`)
+
+This project has four subagents. **Work flows through them in this order:**
+
+1. `architect` — plans before any code is written. Breaks a request into affected modules/layers, resolves open decisions (e.g. Poetry vs pip) by consulting the skills, and produces a structured plan. Never writes or edits code.
+2. `backend-developer` — implements the plan produced by `architect`, following `fastapi-architecture-core-development`, `fastapi-security-standards`, and `fastapi-input-validation-vulnerability-prevention`.
+3. `code-reviewer` — independent review pass after implementation, before documentation.
+4. `fastapi-documenter` — updates API-specific documentation (OpenAPI descriptions, `docs/api/overview.md`) after implementation and review are complete, following `documentation-standards` and `fastapi-security-standards`.
+
+For non-trivial requests, invoke `architect` first rather than going straight to `backend-developer`.
+
 ## Documentation
 
-Load and follow `documentation-standards` in two situations:
+Load and follow `documentation-standards` in two situations (API-specific documentation is handled by the `fastapi-documenter` agent; README/CHANGELOG/ADR updates are handled inline by whichever agent made the change):
 
 1. **Reactively** — after any change to a feature, API/interface, config/env variable, dependency, or architectural decision, or after a non-obvious bug fix. Update or create the relevant docs (README, CHANGELOG, ADR, docstrings) in the same turn as the code change.
 2. **On request** — whenever the user asks to document, update, or review documentation, regardless of whether code changed this session.
@@ -65,7 +76,7 @@ Look for the highest-signal facts for an agent working in this repo:
 
 This is an OpenCode configuration scaffold. If no application code has been written yet, create the project architecture from scratch following the `fastapi-architecture-core-development` skill. If application code already exists, continue building on it consistently with that skill's conventions rather than restructuring it. The `.opencode/` directory contains:
 
-- **agents/** — 6 subagent definitions (`api-designer`, `fastapi-documenter`, `backend-developer`, `code-reviewer`, `frontend-developer`, `websocket-engineer`)
+- **agents/** — 4 subagent definitions (`architect`, `fastapi-documenter`, `backend-developer`, `code-reviewer`)
 - **skills/** — 5 skills: 4 FastAPI production skills + `documentation-standards` (see above)
 - **package.json** — depends on `@opencode-ai/plugin`
 - **.gitignore** — ignores `node_modules`, `package.json`, `package-lock.json`, `bun.lock`, `.gitignore` itself
